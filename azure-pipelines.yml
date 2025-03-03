@@ -1,18 +1,32 @@
-trigger:
-  branches:
-    include:
+name: Azure Deployment
+
+on:
+  push:
+    branches:
       - main
 
-pool:
-  vmImage: 'ubuntu-latest'
+jobs:
+  deploy:
+    runs-on: ubuntu-latest
 
-steps:
-  - checkout: self
+    steps:
+      # Checkout the code from the repository
+      - name: Checkout code
+        uses: actions/checkout@v2
 
-  - task: AzureCLI@2
-    inputs:
-      azureSubscription: 'free'  # ✅ Updated with your service connection name
-      scriptType: 'bash'
-      scriptLocation: 'inlineScript'
-      inlineScript: |
-        az webapp up --name azure-devops-githubapp --resource-group RG1
+      # Log in to Azure using Service Principal credentials stored in GitHub Secrets
+      - name: Log in to Azure
+        uses: azure/login@v1
+        with:
+          creds: ${{ secrets.AZURE_CREDENTIALS }}  # Make sure to store your Azure SP credentials in GitHub secrets
+
+      # Deploy to Azure Web App using Azure CLI
+      - name: Deploy to Azure Web App
+        run: |
+          echo "Deploying to Azure Web App..."
+          az --version  # To verify the Azure CLI version
+          az account show  # To confirm successful authentication
+          az webapp up --name azure-devops-githubapp --resource-group RG1 --sku B1  # Deploy the app
+
+
+
