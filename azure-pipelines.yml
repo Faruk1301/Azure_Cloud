@@ -15,4 +15,4 @@ steps:
       scriptType: 'bash'
       scriptLocation: 'inlineScript'
       inlineScript: |
-        az webapp up --name your-app-name --resource-group your-resource-group
+        az webapp up --name azure-devops-githubapp --resource-group rg1
