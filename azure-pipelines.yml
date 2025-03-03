@@ -1,24 +1,18 @@
-name: CI/CD Pipeline
-on:
-  push:
-    branches:
+trigger:
+  branches:
+    include:
       - main
 
-jobs:
-  deploy:
-    runs-on: ubuntu-latest
-    steps:
-      - name: Checkout code
-        uses: actions/checkout@v2
+pool:
+  vmImage: 'ubuntu-latest'
 
-      - name: Set up Azure CLI
-        uses: azure/setup-azure-cli@v1
+steps:
+  - checkout: self
 
-      - name: Log in to Azure
-        run: az login --service-principal -u ${{ secrets.AZURE_USERNAME }} -p ${{ secrets.AZURE_PASSWORD }} --tenant ${{ secrets.AZURE_TENANT_ID }}
-
-      - name: Authenticate to GitHub with PAT
-        run: git config --global url."https://CoaHQIX1fWaqJAC4jLXabEyXO36S11DA6eJJrAZ56h3LuxJZMNCzJQQJ99BCACAAAAAiWBHcAAASAZDO1Shy@github.com".insteadOf "https://github.com"
-
-      - name: Deploy to Azure App Service
-        run: az webapp up --name your-app-name --resource-group your-resource-group
+  - task: AzureCLI@2
+    inputs:
+      azureSubscription: 'free'  # ✅ Updated with your service connection name
+      scriptType: 'bash'
+      scriptLocation: 'inlineScript'
+      inlineScript: |
+        az webapp up --name your-app-name --resource-group your-resource-group
