@@ -12,9 +12,9 @@ steps:
     displayName: 'Skip dependency installation'
 
   - script: |
-      python -m pip show Flask Werkzeug
-    displayName: 'Show installed versions'
+      echo "Running application without checking for dependencies."
+    displayName: 'Inform about no dependencies'
 
   - script: |
-      gunicorn --bind=0.0.0.0 --timeout 600 app:app
+      python app.py  # Or use gunicorn if you want to run it that way
     displayName: 'Run application'
