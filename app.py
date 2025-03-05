@@ -4,7 +4,8 @@ app = Flask(__name__)
 
 @app.route('/')
 def home():
-    return "Hello, Azure! This is a simple Python script running without Flask. from Bangladesh and England and jarmany"
+    return "Hello, Azure! This is a simple Python script running with Flask. From Bangladesh, England, and Germany."
 
 if __name__ == '__main__':
     app.run(host='0.0.0.0', port=8000)
+
