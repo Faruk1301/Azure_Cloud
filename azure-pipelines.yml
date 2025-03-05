@@ -8,12 +8,6 @@ pr:
     include:
       - main  # Trigger on pull requests to main branch
 
-resources:
-  repositories:
-    - repository: self
-      type: git
-      ref: main
-
 pool:
   vmImage: 'ubuntu-latest'
 
@@ -26,6 +20,9 @@ steps:
     displayName: 'Install dependencies'
 
   - script: |
+      echo "Activating virtual environment."
+      source venv/bin/activate
       echo "Running Flask application."
       gunicorn --bind=0.0.0.0:8000 --timeout 600 app:app
     displayName: 'Run application'
+
