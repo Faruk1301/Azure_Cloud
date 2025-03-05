@@ -1,7 +1,10 @@
-# app.py
+from flask import Flask
 
-def main():
-    print("Hello, Azure! This is a simple Python script running without Flask. from bangladesh and england ")
+app = Flask(__name__)
+
+@app.route('/')
+def home():
+    return "Hello, Azure! This is a simple Python script running without Flask. from Bangladesh and England"
 
 if __name__ == '__main__':
-    main()
+    app.run(host='0.0.0.0', port=8000)
