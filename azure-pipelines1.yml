@@ -7,10 +7,11 @@ pool:
   vmImage: 'ubuntu-latest'
 
 steps:
-  - script: |
-      python -m pip install --upgrade pip
-      pip install -r requirements.txt
-    displayName: 'Install dependencies'
+  - - script: |
+    set -e 
+    python -m pip install --upgrade pip
+    pip install -r requirements.txt
+  displayName: 'Install dependencies'
 
   - script: |
       gunicorn --bind=0.0.0.0 --timeout 600 app:app
