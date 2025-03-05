@@ -1,0 +1,25 @@
+name: Azure Pipeline Trigger
+
+on:
+  push:
+    branches:
+      - main
+  pull_request:
+    branches:
+      - main
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v2
+
+      - name: Trigger Azure Pipeline
+        uses: azure/pipelines@v1
+        with:
+          azure_devops_org: 'YOUR_AZURE_DEVOPS_ORG'
+          azure_devops_project: 'YOUR_AZURE_DEVOPS_PROJECT'
+          azure_devops_pipeline: 'YOUR_AZURE_PIPELINE_NAME'
+          azure_devops_pat: ${{ secrets.AZURE_DEVOPS_PAT }}
