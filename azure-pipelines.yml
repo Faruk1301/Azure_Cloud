@@ -31,5 +31,6 @@ steps:
       gunicorn --bind=0.0.0.0:8000 --timeout 600 app:app
     displayName: 'Run application'
 
+
     displayName: 'Run application'
 
