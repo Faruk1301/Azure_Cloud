@@ -1,12 +1,7 @@
 trigger:
   branches:
     include:
-      - main  # Trigger on push to main branch
-
-pr:
-  branches:
-    include:
-      - main  # Trigger on pull requests to main branch
+      - main
 
 pool:
   vmImage: 'ubuntu-latest'
@@ -14,24 +9,10 @@ pool:
 steps:
   - script: |
       echo "Installing dependencies."
-      python -m venv venv
-      source venv/bin/activate
       pip install -r requirements.txt
     displayName: 'Install dependencies'
 
   - script: |
-      echo "Manually installing Gunicorn."
-      source venv/bin/activate
-      pip install gunicorn
-    displayName: 'Manually Install Gunicorn'
-
-  - script: |
       echo "Running Flask application."
-      source venv/bin/activate
-      gunicorn --bind=0.0.0.0:8000 --timeout 600 app:app
+      gunicorn --bind=0.0.0.0 --timeout 600 app:app
     displayName: 'Run application'
-
-
-
-    displayName: 'Run application'
-
