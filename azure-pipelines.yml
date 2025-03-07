@@ -1,64 +1,67 @@
 trigger:
-  branches:
-    include:
-      - main  # Change if using a different branch
+- main
 
 pool:
   vmImage: 'ubuntu-latest'
 
 stages:
-# --------------------- Stage 1: Build ---------------------
 - stage: Build
   jobs:
-  - job: Build
+  - job: BuildJob
     steps:
     - task: UsePythonVersion@0
       inputs:
         versionSpec: '3.x'
-      displayName: 'Use Python 3.x'
 
-    # Install dependencies in a virtual environment
     - script: |
         python -m venv venv
         source venv/bin/activate
         pip install -r requirements.txt
-      displayName: 'Install dependencies'
+      displayName: 'Install Dependencies'
 
-    # Archive source files into a zip package
     - task: ArchiveFiles@2
-      displayName: 'Archive source files'
       inputs:
-        rootFolderOrFile: '$(Build.SourcesDirectory)'
+        rootFolderOrFile: '$(Build.SourcesDirectory)'  
         includeRootFolder: false
         archiveType: 'zip'
         archiveFile: '$(Build.ArtifactStagingDirectory)/app.zip'
 
-    # Publish the zip artifact
-    - publish: '$(Build.ArtifactStagingDirectory)/app.zip'
-      artifact: app
+    - task: PublishBuildArtifacts@1
+      inputs:
+        pathToPublish: '$(Build.ArtifactStagingDirectory)/app.zip'
+        artifactName: 'drop'
 
-# --------------------- Stage 2: Dev ---------------------
-- stage: Dev
+- stage: DeployToDev
   dependsOn: Build
   jobs:
-  - job: DeployToDev
+  - job: DeployDevJob
     steps:
-    - task: AzureWebApp@1
-      displayName: 'Deploy to Dev Web App'
+    - task: DownloadBuildArtifacts@0
       inputs:
-        azureSubscription: 'MyAzureConnection'  # Your service connection name
-        appName: 'my-python-app'                  # Your Dev App Service name
-        package: '$(Pipeline.Workspace)/app/app.zip'
+        buildType: 'current'
+        artifactName: 'drop'
+        downloadPath: '$(Pipeline.Workspace)'
 
-# --------------------- Stage 3: Stage ---------------------
-- stage: Stage
-  dependsOn: Dev
-  jobs:
-  - job: DeployToStage
-    steps:
     - task: AzureWebApp@1
-      displayName: 'Deploy to Stage Web App'
       inputs:
-        azureSubscription: 'MyAzureConnection'  # Your service connection name
-        appName: 'my-python-app-staging'          # Your Staging App Service name
-        package: '$(Pipeline.Workspace)/app/app.zip'
+        azureSubscription: 'MyAzureConnection'
+        appName: 'my-python-app'
+        package: '$(Pipeline.Workspace)/drop/app.zip'
+
+- stage: DeployToStaging
+  dependsOn: DeployToDev
+  jobs:
+  - job: DeployStagingJob
+    steps:
+    - task: DownloadBuildArtifacts@0
+      inputs:
+        buildType: 'current'
+        artifactName: 'drop'
+        downloadPath: '$(Pipeline.Workspace)'
+
+    - task: AzureWebApp@1
+      inputs:
+        azureSubscription: 'MyAzureConnection'
+        appName: 'my-python-app-staging'
+        package: '$(Pipeline.Workspace)/drop/app.zip'
+
