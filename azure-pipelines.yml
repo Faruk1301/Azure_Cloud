@@ -1,5 +1,12 @@
 trigger:
-- main
+  branches:
+    include:
+      - main  # Runs the pipeline only on changes to main
+
+pr:
+  branches:
+    include:
+      - main  # Runs validation on pull requests to main
 
 pool:
   vmImage: 'ubuntu-latest'
@@ -9,9 +16,6 @@ stages:
   jobs:
   - job: BuildJob
     steps:
-    - checkout: self
-      fetchDepth: 1
-
     - task: UsePythonVersion@0
       inputs:
         versionSpec: '3.x'
@@ -20,12 +24,15 @@ stages:
         python -m venv venv
         source venv/bin/activate
         python -m pip install --upgrade pip
-        pip install -r requirements.txt
+        pip install --no-cache-dir -r requirements.txt  # Ensures fresh dependencies
       displayName: 'Install Dependencies'
+
+    - script: rm -rf $(Build.ArtifactStagingDirectory)/*
+      displayName: "Clean previous artifacts"
 
     - task: ArchiveFiles@2
       inputs:
-        rootFolderOrFile: '$(Build.SourcesDirectory)'  
+        rootFolderOrFile: '$(Build.SourcesDirectory)'
         includeRootFolder: false
         archiveType: 'zip'
         archiveFile: '$(Build.ArtifactStagingDirectory)/app.zip'
@@ -37,45 +44,51 @@ stages:
 
 - stage: DeployToDev
   dependsOn: Build
-  condition: succeeded()
   jobs:
   - job: DeployDevJob
     steps:
-    - task: DownloadBuildArtifacts@0  # Fixed version to @0
+    - task: AzureAppServiceManage@0
+      inputs:
+        azureSubscription: 'MyAzureConnection'
+        Action: 'Restart Azure App Service'
+        WebAppName: 'my-python-app'
+
+    - task: DownloadBuildArtifacts@0
       inputs:
         buildType: 'current'
         artifactName: 'drop'
         downloadPath: '$(Pipeline.Workspace)'
-
-    - script: ls -R $(Pipeline.Workspace)/drop
-      displayName: "Check Artifacts Before Deployment"
 
     - task: AzureWebApp@1
       inputs:
         azureSubscription: 'MyAzureConnection'
         appName: 'my-python-app'
         package: '$(Pipeline.Workspace)/drop/app.zip'
+        deploymentMethod: 'runFromPackage'  # Prevents locked file errors
 
 - stage: DeployToStaging
   dependsOn: DeployToDev
-  condition: succeeded()
   jobs:
   - job: DeployStagingJob
     steps:
-    - task: DownloadBuildArtifacts@0  # Fixed version to @0
+    - task: AzureAppServiceManage@0
+      inputs:
+        azureSubscription: 'MyAzureConnection'
+        Action: 'Restart Azure App Service'
+        WebAppName: 'my-python-app-staging'
+
+    - task: DownloadBuildArtifacts@0
       inputs:
         buildType: 'current'
         artifactName: 'drop'
         downloadPath: '$(Pipeline.Workspace)'
-
-    - script: ls -R $(Pipeline.Workspace)/drop
-      displayName: "Check Artifacts Before Deployment"
 
     - task: AzureWebApp@1
       inputs:
         azureSubscription: 'MyAzureConnection'
         appName: 'my-python-app-staging'
         package: '$(Pipeline.Workspace)/drop/app.zip'
+        deploymentMethod: 'runFromPackage'  # Prevents locked file errors
 
 
 
