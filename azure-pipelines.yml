@@ -11,7 +11,6 @@ stages:
     steps:
     - checkout: self
       fetchDepth: 1
-      condition: always()  # Ensures checkout runs even if a previous pipeline run failed
 
     - task: UsePythonVersion@0
       inputs:
@@ -19,11 +18,10 @@ stages:
 
     - script: |
         python -m venv venv
-        source venv/bin/activate  # For Linux/macOS
+        source venv/bin/activate
         python -m pip install --upgrade pip
         pip install -r requirements.txt
       displayName: 'Install Dependencies'
-      condition: succeeded()
 
     - task: ArchiveFiles@2
       inputs:
@@ -39,11 +37,11 @@ stages:
 
 - stage: DeployToDev
   dependsOn: Build
-  condition: succeeded()  # Only runs if Build stage succeeds
+  condition: succeeded()
   jobs:
   - job: DeployDevJob
     steps:
-    - task: DownloadBuildArtifacts@2
+    - task: DownloadBuildArtifacts@0  # Fixed version to @0
       inputs:
         buildType: 'current'
         artifactName: 'drop'
@@ -64,7 +62,7 @@ stages:
   jobs:
   - job: DeployStagingJob
     steps:
-    - task: DownloadBuildArtifacts@2
+    - task: DownloadBuildArtifacts@0  # Fixed version to @0
       inputs:
         buildType: 'current'
         artifactName: 'drop'
@@ -78,5 +76,6 @@ stages:
         azureSubscription: 'MyAzureConnection'
         appName: 'my-python-app-staging'
         package: '$(Pipeline.Workspace)/drop/app.zip'
+
 
 
