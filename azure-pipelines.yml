@@ -37,29 +37,22 @@ stages:
 - stage: Dev
   dependsOn: Build
   jobs:
-  - deployment: DeployToDev
-    environment: Dev
-    strategy:
-      runOnce:
-        deploy:
-          steps:
-          - task: AzureWebApp@1
-            inputs:
-              azureSubscription: 'Azure for Students'  # Your Subscription Name
-              appName: 'my-python-app'  # Your Dev App Service
-              package: '$(Pipeline.Workspace)/app/app.zip'
+  - job: DeployToDev
+    steps:
+    - task: AzureWebApp@1
+      inputs:
+        azureSubscription: 'Azure for Students'  # Your Subscription Name
+        appName: 'my-python-app'  # Your Dev App Service
+        package: '$(Pipeline.Workspace)/app/app.zip'
 
 - stage: Stage
   dependsOn: Dev
   jobs:
-  - deployment: DeployToStage
-    environment: Stage
-    strategy:
-      runOnce:
-        deploy:
-          steps:
-          - task: AzureWebApp@1
-            inputs:
-              azureSubscription: 'Azure for Students'  # Your Subscription Name
-              appName: 'my-python-app-staging'  # Your Staging App Service
-              package: '$(Pipeline.Workspace)/app/app.zip'
+  - job: DeployToStage
+    steps:
+    - task: AzureWebApp@1
+      inputs:
+        azureSubscription: 'Azure for Students'  # Your Subscription Name
+        appName: 'my-python-app-staging'  # Your Staging App Service
+        package: '$(Pipeline.Workspace)/app/app.zip'
+
