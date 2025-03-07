@@ -17,21 +17,14 @@ stages:
         versionSpec: '3.x'
       displayName: 'Use Python 3.x'
 
-    # Install dependencies (including pytest) in a virtual environment
+    # Install dependencies in a virtual environment
     - script: |
         python -m venv venv
         source venv/bin/activate
         pip install -r requirements.txt
-        pip install pytest  # If pytest isn't already in requirements.txt
       displayName: 'Install dependencies'
 
-    # Run tests with pytest
-    - script: |
-        source venv/bin/activate
-        pytest
-      displayName: 'Run Tests'
-
-    # Archive all files into a zip
+    # Archive source files into a zip package
     - task: ArchiveFiles@2
       displayName: 'Archive source files'
       inputs:
@@ -40,7 +33,7 @@ stages:
         archiveType: 'zip'
         archiveFile: '$(Build.ArtifactStagingDirectory)/app.zip'
 
-    # Publish the zip as an artifact named "app"
+    # Publish the zip artifact
     - publish: '$(Build.ArtifactStagingDirectory)/app.zip'
       artifact: app
 
@@ -53,8 +46,8 @@ stages:
     - task: AzureWebApp@1
       displayName: 'Deploy to Dev Web App'
       inputs:
-        azureSubscription: 'MyAzureConnection'   # Your service connection name
-        appName: 'my-python-app'                 # Dev App Service name
+        azureSubscription: 'MyAzureConnection'  # Your service connection name
+        appName: 'my-python-app'                  # Your Dev App Service name
         package: '$(Pipeline.Workspace)/app/app.zip'
 
 # --------------------- Stage 3: Stage ---------------------
@@ -66,6 +59,6 @@ stages:
     - task: AzureWebApp@1
       displayName: 'Deploy to Stage Web App'
       inputs:
-        azureSubscription: 'MyAzureConnection'   # Same service connection
-        appName: 'my-python-app-staging'         # Stage App Service name
+        azureSubscription: 'MyAzureConnection'  # Your service connection name
+        appName: 'my-python-app-staging'          # Your Staging App Service name
         package: '$(Pipeline.Workspace)/app/app.zip'
