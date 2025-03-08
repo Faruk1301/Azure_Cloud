@@ -23,8 +23,8 @@ stages:
     - script: |
         python -m venv venv
         source venv/bin/activate
-        python -m pip install --upgrade pip
-        pip install --no-cache-dir -r requirements.txt  # Ensures fresh dependencies
+        python -m pip install --upgrade pip  # Ensures pip is up to date
+        pip install --no-cache-dir -r requirements.txt  # Installs dependencies
       displayName: 'Install Dependencies'
 
     - script: rm -rf $(Build.ArtifactStagingDirectory)/*
@@ -52,48 +52,27 @@ stages:
   jobs:
   - job: DeployDevJob
     steps:
-    - task: AzureAppServiceManage@0
-      inputs:
-        azureSubscription: 'MyAzureConnection'
-        Action: 'Restart Azure App Service'
-        WebAppName: 'my-python-app'
-
-    - task: DownloadBuildArtifacts@0
-      inputs:
-        buildType: 'current'
-        artifactName: 'drop'
-        downloadPath: '$(Pipeline.Workspace)'
-
     - task: AzureWebApp@1
       inputs:
         azureSubscription: 'MyAzureConnection'
         appName: 'my-python-app'
         package: '$(Pipeline.Workspace)/drop/app.zip'
         deploymentMethod: 'runFromPackage'  # Prevents locked file errors
+        timeoutInMinutes: 30  # Increase timeout to avoid canceling deployment
 
 - stage: DeployToStaging
   dependsOn: DeployToDev
   jobs:
   - job: DeployStagingJob
     steps:
-    - task: AzureAppServiceManage@0
-      inputs:
-        azureSubscription: 'MyAzureConnection'
-        Action: 'Restart Azure App Service'
-        WebAppName: 'my-python-app-staging'
-
-    - task: DownloadBuildArtifacts@0
-      inputs:
-        buildType: 'current'
-        artifactName: 'drop'
-        downloadPath: '$(Pipeline.Workspace)'
-
     - task: AzureWebApp@1
       inputs:
         azureSubscription: 'MyAzureConnection'
         appName: 'my-python-app-staging'
         package: '$(Pipeline.Workspace)/drop/app.zip'
         deploymentMethod: 'runFromPackage'  # Prevents locked file errors
+        timeoutInMinutes: 30  # Increase timeout to avoid canceling deployment
+
 
 
 
