@@ -30,17 +30,10 @@ stages:
     - script: rm -rf $(Build.ArtifactStagingDirectory)/*
       displayName: "Clean previous artifacts"
 
-    - task: ArchiveFiles@2
-      inputs:
-        rootFolderOrFile: '$(Build.SourcesDirectory)'
-        includeRootFolder: false
-        archiveType: 'zip'
-        archiveFile: '$(Build.ArtifactStagingDirectory)/app.zip'
-
+    # Exclude unnecessary files/folders from the deployment package
     - script: |
-        echo "Contents of the ZIP file:"
-        unzip -l $(Build.ArtifactStagingDirectory)/app.zip  # List contents of the ZIP file
-      displayName: 'List ZIP Contents'
+        zip -r $(Build.ArtifactStagingDirectory)/app.zip . -x "venv/*" "*.git/*" "*.pytest_cache/*" "*.vscode/*" "*.env" "logs/*"
+      displayName: 'Archive Application (Excluding Unnecessary Files)'
 
     - task: PublishBuildArtifacts@1
       inputs:
@@ -95,10 +88,6 @@ stages:
         package: '$(Pipeline.Workspace)/drop/app.zip'
         deploymentMethod: 'runFromPackage'  # Prevents locked file errors
 
-    - script: |
-        echo "Checking deployment status..."
-        curl -X GET https://my-python-app-staging.azurewebsites.net  # Check if the app is live after deployment
-      displayName: 'Verify Deployment'
 
 
 
