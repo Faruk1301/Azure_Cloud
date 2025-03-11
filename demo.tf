@@ -4,3 +4,6 @@ Terraform will perform the following actions:
       + name     = "RG1"
     }
 Plan: 1 to add, 0 to change, 0 to destroy.
+
+
+
