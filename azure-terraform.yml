@@ -12,12 +12,15 @@ steps:
 
 - script: |
     terraform --version
-    terraform validate
-  displayName: 'Terraform Validate'
+  displayName: 'Check Terraform Version'
 
 - script: |
     terraform init
   displayName: 'Terraform Init'
+
+- script: |
+    terraform validate
+  displayName: 'Terraform Validate'
 
 - script: |
     terraform plan
@@ -26,6 +29,7 @@ steps:
 - script: |
     terraform apply -auto-approve
   displayName: 'Terraform Apply'
+
 
 
 
