@@ -10,25 +10,35 @@ steps:
 - checkout: self
   clean: true
 
-- script: |
-    terraform --version
-  displayName: 'Check Terraform Version'
+- task: TerraformInstaller@0
+  inputs:
+    terraformVersion: 'latest'
 
-- script: |
-    terraform init
+- task: TerraformCLI@0
   displayName: 'Terraform Init'
+  inputs:
+    command: 'init'
+    workingDirectory: '$(Build.SourcesDirectory)'
+    backendType: 'azurerm'
+    ensureBackend: false
+    allowTelemetryCollection: false
+    environmentServiceNameAzureRM: 'MyAzureConnection'
 
-- script: |
-    terraform validate
-  displayName: 'Terraform Validate'
-
-- script: |
-    terraform plan
+- task: TerraformCLI@0
   displayName: 'Terraform Plan'
+  inputs:
+    command: 'plan'
+    workingDirectory: '$(Build.SourcesDirectory)'
+    environmentServiceNameAzureRM: 'MyAzureConnection'
 
-- script: |
-    terraform apply -auto-approve
+- task: TerraformCLI@0
   displayName: 'Terraform Apply'
+  inputs:
+    command: 'apply'
+    workingDirectory: '$(Build.SourcesDirectory)'
+    environmentServiceNameAzureRM: 'MyAzureConnection'
+    commandOptions: '-auto-approve'
+
 
 
 
