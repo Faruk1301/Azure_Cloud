@@ -10,11 +10,8 @@ steps:
 - checkout: self
   clean: true
 
-- task: UseTerraform@0
-  inputs:
-    terraformVersion: '1.4.0'
-
 - script: |
+    terraform --version
     terraform init
     terraform plan
   displayName: 'Terraform Init and Plan'
@@ -22,7 +19,6 @@ steps:
 - script: |
     terraform apply -auto-approve
   displayName: 'Terraform Apply'
-
 
 
 
