@@ -12,7 +12,7 @@ provider "azurerm" {
 }
 
 resource "azurerm_resource_group" "rg" {
-  name     = "RG3"
+  name     = "RG4"
   location = "East US"
 
   tags = {
