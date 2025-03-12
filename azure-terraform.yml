@@ -7,9 +7,8 @@ pool:
   vmImage: 'ubuntu-latest'
 
 steps:
-- task: Checkout@2
-  inputs:
-    clean: true
+- checkout: self
+  clean: true
 
 - task: UseTerraform@0
   inputs:
@@ -23,6 +22,7 @@ steps:
 - script: |
     terraform apply -auto-approve
   displayName: 'Terraform Apply'
+
 
 
 
