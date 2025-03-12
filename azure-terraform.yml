@@ -14,7 +14,8 @@ steps:
   inputs:
     terraformVersion: 'latest'
 
-- task: TerraformCLI@0
+# Terraform Init
+- task: TerraformCLI@2
   displayName: 'Terraform Init'
   inputs:
     command: 'init'
@@ -24,14 +25,16 @@ steps:
     allowTelemetryCollection: false
     environmentServiceNameAzureRM: 'MyAzureConnection'
 
-- task: TerraformCLI@0
+# Terraform Plan
+- task: TerraformCLI@2
   displayName: 'Terraform Plan'
   inputs:
     command: 'plan'
     workingDirectory: '$(Build.SourcesDirectory)'
     environmentServiceNameAzureRM: 'MyAzureConnection'
 
-- task: TerraformCLI@0
+# Terraform Apply
+- task: TerraformCLI@2
   displayName: 'Terraform Apply'
   inputs:
     command: 'apply'
