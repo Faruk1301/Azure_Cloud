@@ -2,7 +2,7 @@ trigger:
 - main
 
 variables:
-- group: terraform_credential  # Must include: CLIENT_ID, CLIENT_SECRET, SUBSCRIPTION_ID, TENANT_ID
+- group: terraform_credential  # Variable group with CLIENT_ID, CLIENT_SECRET, etc.
 - name: terraformVersion
   value: '1.5.5'
 
@@ -10,26 +10,24 @@ pool:
   vmImage: 'ubuntu-latest'
 
 steps:
-# Install Terraform manually
+# ✅ Install Terraform manually
 - script: |
-    echo "Installing Terraform $(terraformVersion)..."
+    echo "Installing Terraform..."
     curl -LO https://releases.hashicorp.com/terraform/$(terraformVersion)/terraform_$(terraformVersion)_linux_amd64.zip
     unzip terraform_$(terraformVersion)_linux_amd64.zip
     sudo mv terraform /usr/local/bin/
     terraform -version
   displayName: 'Install Terraform'
 
-# Login to Azure using the service connection
-- task: AzureCLI@2
-  inputs:
-    azureSubscription: 'terraform-sc'
-    scriptType: 'bash'
-    scriptLocation: 'inlineScript'
-    inlineScript: |
-      echo "Logged into Azure using service connection"
-
-# Terraform Init
+# ✅ Terraform Init
 - script: |
+    echo "Running terraform init..."
+    
+    export ARM_CLIENT_ID=$(CLIENT_ID)
+    export ARM_CLIENT_SECRET=$(CLIENT_SECRET)
+    export ARM_SUBSCRIPTION_ID=$(SUBSCRIPTION_ID)
+    export ARM_TENANT_ID=$(TENANT_ID)
+
     terraform init
   displayName: 'Terraform Init'
   env:
@@ -38,8 +36,15 @@ steps:
     SUBSCRIPTION_ID: $(SUBSCRIPTION_ID)
     TENANT_ID: $(TENANT_ID)
 
-# Terraform Plan
+# ✅ Terraform Plan (fixed)
 - script: |
+    echo "Planning Terraform deployment..."
+
+    export ARM_CLIENT_ID=$(CLIENT_ID)
+    export ARM_CLIENT_SECRET=$(CLIENT_SECRET)
+    export ARM_SUBSCRIPTION_ID=$(SUBSCRIPTION_ID)
+    export ARM_TENANT_ID=$(TENANT_ID)
+
     terraform plan
   displayName: 'Terraform Plan'
   env:
@@ -48,8 +53,15 @@ steps:
     SUBSCRIPTION_ID: $(SUBSCRIPTION_ID)
     TENANT_ID: $(TENANT_ID)
 
-# Terraform Apply
+# ✅ Terraform Apply
 - script: |
+    echo "Applying Terraform changes..."
+
+    export ARM_CLIENT_ID=$(CLIENT_ID)
+    export ARM_CLIENT_SECRET=$(CLIENT_SECRET)
+    export ARM_SUBSCRIPTION_ID=$(SUBSCRIPTION_ID)
+    export ARM_TENANT_ID=$(TENANT_ID)
+
     terraform apply -auto-approve
   displayName: 'Terraform Apply'
   env:
@@ -57,6 +69,7 @@ steps:
     CLIENT_SECRET: $(CLIENT_SECRET)
     SUBSCRIPTION_ID: $(SUBSCRIPTION_ID)
     TENANT_ID: $(TENANT_ID)
+
 
 
 
