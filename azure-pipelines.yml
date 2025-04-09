@@ -2,7 +2,7 @@ trigger:
 - main
 
 variables:
-- group: terraform_credential  # Variable group must have: CLIENT_ID, CLIENT_SECRET, SUBSCRIPTION_ID, TENANT_ID
+- group: terraform_credential  # Must include: CLIENT_ID, CLIENT_SECRET, SUBSCRIPTION_ID, TENANT_ID
 - name: terraformVersion
   value: '1.5.5'
 
@@ -10,19 +10,23 @@ pool:
   vmImage: 'ubuntu-latest'
 
 steps:
-# Install Terraform
-- task: UseTerraform@0
-  inputs:
-    terraformVersion: '$(terraformVersion)'
+# Install Terraform manually
+- script: |
+    echo "Installing Terraform $(terraformVersion)..."
+    curl -LO https://releases.hashicorp.com/terraform/$(terraformVersion)/terraform_$(terraformVersion)_linux_amd64.zip
+    unzip terraform_$(terraformVersion)_linux_amd64.zip
+    sudo mv terraform /usr/local/bin/
+    terraform -version
+  displayName: 'Install Terraform'
 
 # Login to Azure using the service connection
 - task: AzureCLI@2
   inputs:
-    azureSubscription: 'terraform-sc'  # Your service connection name
+    azureSubscription: 'terraform-sc'
     scriptType: 'bash'
     scriptLocation: 'inlineScript'
     inlineScript: |
-      echo "Azure CLI login successful"
+      echo "Logged into Azure using service connection"
 
 # Terraform Init
 - script: |
@@ -53,7 +57,6 @@ steps:
     CLIENT_SECRET: $(CLIENT_SECRET)
     SUBSCRIPTION_ID: $(SUBSCRIPTION_ID)
     TENANT_ID: $(TENANT_ID)
-
 
 
 
