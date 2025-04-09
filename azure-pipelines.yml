@@ -2,7 +2,7 @@ trigger:
 - main
 
 variables:
-- group: terraform_credential  # Your variable group
+- group: terraform_credential  # Variable group must have: CLIENT_ID, CLIENT_SECRET, SUBSCRIPTION_ID, TENANT_ID
 - name: terraformVersion
   value: '1.5.5'
 
@@ -10,31 +10,50 @@ pool:
   vmImage: 'ubuntu-latest'
 
 steps:
-- task: TerraformInstaller@0
-  displayName: 'Install Terraform'
+# Install Terraform
+- task: UseTerraform@0
   inputs:
-    terraformVersion: $(terraformVersion)
+    terraformVersion: '$(terraformVersion)'
 
-- task: TerraformCLI@0
+# Login to Azure using the service connection
+- task: AzureCLI@2
+  inputs:
+    azureSubscription: 'terraform-sc'  # Your service connection name
+    scriptType: 'bash'
+    scriptLocation: 'inlineScript'
+    inlineScript: |
+      echo "Azure CLI login successful"
+
+# Terraform Init
+- script: |
+    terraform init
   displayName: 'Terraform Init'
-  inputs:
-    command: 'init'
-    workingDirectory: '$(System.DefaultWorkingDirectory)'
+  env:
+    CLIENT_ID: $(CLIENT_ID)
+    CLIENT_SECRET: $(CLIENT_SECRET)
+    SUBSCRIPTION_ID: $(SUBSCRIPTION_ID)
+    TENANT_ID: $(TENANT_ID)
 
-- task: TerraformCLI@0
+# Terraform Plan
+- script: |
+    terraform plan
   displayName: 'Terraform Plan'
-  inputs:
-    command: 'plan'
-    workingDirectory: '$(System.DefaultWorkingDirectory)'
-    environmentServiceName: 'terraform-sc'  # Your service connection
+  env:
+    CLIENT_ID: $(CLIENT_ID)
+    CLIENT_SECRET: $(CLIENT_SECRET)
+    SUBSCRIPTION_ID: $(SUBSCRIPTION_ID)
+    TENANT_ID: $(TENANT_ID)
 
-- task: TerraformCLI@0
+# Terraform Apply
+- script: |
+    terraform apply -auto-approve
   displayName: 'Terraform Apply'
-  inputs:
-    command: 'apply'
-    workingDirectory: '$(System.DefaultWorkingDirectory)'
-    environmentServiceName: 'terraform-sc'  # Your service connection
-    commandOptions: '-auto-approve'
+  env:
+    CLIENT_ID: $(CLIENT_ID)
+    CLIENT_SECRET: $(CLIENT_SECRET)
+    SUBSCRIPTION_ID: $(SUBSCRIPTION_ID)
+    TENANT_ID: $(TENANT_ID)
+
 
 
 
