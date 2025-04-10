@@ -12,13 +12,13 @@ provider "azurerm" {
 }
 
 resource "azurerm_resource_group" "example" {
-  name     = "example-resources6"
+  name     = "demo-resources6"
   location = "East US"
 }
 
 resource "azurerm_virtual_network" "example" {
   name                = "example-vnet"
-  address_space       = ["30.0.0.0/16"]
+  address_space       = ["40.0.0.0/16"]
   location            = azurerm_resource_group.example.location
   resource_group_name = azurerm_resource_group.example.name
 }
