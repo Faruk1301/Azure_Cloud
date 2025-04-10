@@ -1,10 +1,15 @@
 trigger:
-- main
+  branches:
+    include:
+      - main  # Trigger for the main branch (or other branches if needed)
+  paths:
+    include:
+      - 'main.tf'  # Trigger only when main.tf changes
 
 variables:
-- group: terraform_credential  # contains CLIENT_ID, CLIENT_SECRET, SUBSCRIPTION_ID, TENANT_ID
-- name: terraformVersion
-  value: '1.5.5'
+  - group: terraform_credential  # contains CLIENT_ID, CLIENT_SECRET, SUBSCRIPTION_ID, TENANT_ID
+  - name: terraformVersion
+    value: '1.5.5'
 
 pool:
   vmImage: 'ubuntu-latest'
@@ -63,7 +68,6 @@ steps:
     CLIENT_SECRET: $(CLIENT_SECRET)
     SUBSCRIPTION_ID: $(SUBSCRIPTION_ID)
     TENANT_ID: $(TENANT_ID)
-
 
 
 
