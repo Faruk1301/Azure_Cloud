@@ -1,22 +1,20 @@
 trigger:
   branches:
     include:
-      - main  # Trigger for the main branch (or other branches if needed)
+      - main
   paths:
     include:
-      - 'main.tf'  # Trigger only when main.tf changes
+      - 'main.tf'
 
 variables:
-  - group: terraform_credential  # contains CLIENT_ID, CLIENT_SECRET, SUBSCRIPTION_ID, TENANT_ID
+  - group: terraform_credential
   - name: terraformVersion
     value: '1.5.5'
 
 pool:
   vmImage: 'ubuntu-latest'
-  timeoutInMinutes: 30
 
 steps:
-# ✅ Install Terraform
 - script: |
     curl -LO https://releases.hashicorp.com/terraform/$(terraformVersion)/terraform_$(terraformVersion)_linux_amd64.zip
     unzip terraform_$(terraformVersion)_linux_amd64.zip
@@ -24,7 +22,6 @@ steps:
     terraform -version
   displayName: 'Install Terraform'
 
-# ✅ Terraform Init
 - script: |
     export ARM_CLIENT_ID=$(CLIENT_ID)
     export ARM_CLIENT_SECRET=$(CLIENT_SECRET)
@@ -39,7 +36,6 @@ steps:
     SUBSCRIPTION_ID: $(SUBSCRIPTION_ID)
     TENANT_ID: $(TENANT_ID)
 
-# ✅ Terraform Plan
 - script: |
     export ARM_CLIENT_ID=$(CLIENT_ID)
     export ARM_CLIENT_SECRET=$(CLIENT_SECRET)
@@ -54,7 +50,6 @@ steps:
     SUBSCRIPTION_ID: $(SUBSCRIPTION_ID)
     TENANT_ID: $(TENANT_ID)
 
-# ✅ Terraform Apply
 - script: |
     export ARM_CLIENT_ID=$(CLIENT_ID)
     export ARM_CLIENT_SECRET=$(CLIENT_SECRET)
